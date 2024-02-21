@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageId>Blax</PackageId>
@@ -24,13 +24,14 @@
   <ItemGroup>
     <SupportedPlatform Include="browser" />
     <None Include="README.md" Pack="true" PackagePath="\"/>
-	<None Include="LICENSE.md" Pack="true" PackagePath="\"/>
-	<None Include="icon.png" Pack="true" PackagePath="\"/>
+	  <None Include="LICENSE.md" Pack="true" PackagePath="\"/>
+	  <None Include="icon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.*" Condition="$(TargetFramework) == 'net7.0'" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.*" Condition="$(TargetFramework) == 'net8.0'" />
   </ItemGroup>
 
 </Project>
