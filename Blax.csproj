@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageId>Blax</PackageId>
@@ -19,8 +19,7 @@
 	
 	<PackageReleaseNotes>Initial Release</PackageReleaseNotes>
   </PropertyGroup>
-
-
+    
   <ItemGroup>
     <SupportedPlatform Include="browser" />
     <None Include="README.md" Pack="true" PackagePath="\"/>
@@ -30,8 +29,12 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.*" Condition="$(TargetFramework) == 'net6.0'" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.*" Condition="$(TargetFramework) == 'net7.0'" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.*" Condition="$(TargetFramework) == 'net8.0'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" Condition="$(TargetFramework) == 'net8.0'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.*" Condition="$(TargetFramework) == 'net7.0'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.*" Condition="$(TargetFramework) == 'net6.0'" />
   </ItemGroup>
 
 </Project>

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using Blax;
 using Castle.DynamicProxy;
-
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Blax;
+
 public class ObservableState
 {
     private readonly List<Action> _subscribers = new();
@@ -17,11 +18,48 @@ public class ObservableState
         ValidateObservableProperties(GetType());
     }
 
-    public static T CreateInstance<T>() where T : ObservableState, new()
+    /// <summary>
+    /// Create a new observable object using the given generic type parameter <typeparamref name="T"/>.
+    /// <para>Provide an optional <paramref name="serviceProvider"/>, to inject any constructor dependencies.</para>
+    /// </summary>
+    /// <param name="serviceProvider"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T CreateInstance<T>(IServiceProvider? serviceProvider = null) where T : ObservableState, new()
     {
-        var instance = new T();
+        T instance;
+        if (serviceProvider == null) {
+            instance = new T();
+        } else {
+            instance = ActivatorUtilities.CreateInstance<T>(serviceProvider);
+        }
+
         instance.InitializeProxy();
         return (T)instance._state!;
+    }
+    
+    /// <summary>
+    /// Create a new observable object using the given type parameter <paramref name="type"/>
+    /// <para>Provide an optional <paramref name="serviceProvider"/>, to inject any constructor dependencies.</para>
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="serviceProvider"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+    {
+        ObservableState? instance;
+        if (serviceProvider == null) {
+            instance = Activator.CreateInstance(type) as ObservableState;    
+        } else {
+            instance = ActivatorUtilities.CreateInstance(serviceProvider, type) as ObservableState;
+        }
+        
+        if (instance is null)
+            throw new InvalidOperationException("Given type was not a derived type of " + nameof(ObservableState));
+        
+        instance.InitializeProxy();
+        return instance._state!;
     }
 
     private void InitializeProxy()
