@@ -28,7 +28,7 @@ public static class IocExtensions
 
         object Factory(IServiceProvider svcProvider)
         {
-            var instance = ObservableState.CreateInstance(objectType);
+            var instance = ObservableState.CreateInstance(objectType, svcProvider);
 
             // get all [Inject] properties
             var propertiesWithInjectAttribute = instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
