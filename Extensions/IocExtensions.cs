@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blax.Extensions;
@@ -17,7 +18,34 @@ public static class IocExtensions
         var observables = assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ObservableState))).ToList();
 
         foreach (var ob in observables) {
-            sc.Add(new ServiceDescriptor(ob, factory: _ => ObservableState.CreateInstance(ob), serviceLifetime));
+            sc.Add(new ServiceDescriptor(ob, factory: GetFactoryFunc(ob), serviceLifetime));
+        }
+    }
+
+    public static Func<IServiceProvider, object> GetFactoryFunc(Type objectType)
+    {
+        return Factory;
+
+        object Factory(IServiceProvider svcProvider)
+        {
+            var instance = ObservableState.CreateInstance(objectType);
+
+            // get all [Inject] properties
+            var propertiesWithInjectAttribute = instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.GetCustomAttribute<InjectAttribute>() != null).ToList();
+
+            // if any, then set those [Inject] properties from the serviceProvider
+            if (propertiesWithInjectAttribute.Any()) {
+                foreach (var property in propertiesWithInjectAttribute) {
+                    if (!property.CanWrite) continue;
+
+                    var propertyType = property.PropertyType;
+                    var serviceInstance = svcProvider.GetRequiredService(propertyType);
+                    property.SetValue(instance, serviceInstance);
+                }
+            }
+
+            return instance;
         }
     }
 }
